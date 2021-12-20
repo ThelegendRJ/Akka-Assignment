@@ -6,26 +6,26 @@ import akka.event.{Logging, LoggingAdapter}
 case object StartConversation
 
 object AkkaMessaging extends App {
-  val actorSystem = ActorSystem("PingPongSystem")
+
   class PongActor extends Actor {
     val log: LoggingAdapter = Logging(context.system, this)
 
     def receive: PartialFunction[Any,Unit] = {
       case message: String => log.info(message)
-        sender ! "PongActor"
+        sender ! "Pong_Actor"
 
     }
   }
   class PingActor extends Actor {
     val log: LoggingAdapter = Logging(context.system, this)
-    val pongActor: ActorRef = context.actorOf(Props[PongActor], name = "pongActor")
+    val pongActor: ActorRef = context.actorOf(Props[PongActor], name = "pong_Actor")
 
     def receive: PartialFunction[Any,Unit] = {
-      case StartConversation => pongActor ! "PingActor"
+      case StartConversation => pongActor ! "Ping_Actor"
       case message: String => log.info(message)
     }
   }
-
-  val pingActor = actorSystem.actorOf(Props[PingActor], name = "pingActor")
+  val actor = ActorSystem("PingPong")
+  val pingActor = actor.actorOf(Props[PingActor], name = "ping_Actor")
   pingActor ! StartConversation
 }

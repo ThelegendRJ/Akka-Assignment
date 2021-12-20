@@ -6,7 +6,6 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.Try
 
-
 case object StartConversations
 
 case class End(receivePings: Int)
@@ -16,7 +15,7 @@ case class GetPongSum(sum: Option[Int])
 case class ThrowException()
 
 object ActorState extends App {
-  val system = ActorSystem("PingPongSystem")
+  val actorSystem = ActorSystem("PingPongSystem")
 
   class pingActor() extends Actor {
     var sum = 0
@@ -24,7 +23,7 @@ object ActorState extends App {
 
     def receive: PartialFunction[Any,Unit] = {
       case StartConversation => for (x <- 1 to 10000) pong ! "pingActor"
-      case message: String => sum += 1
+      case _: String => sum += 1
       case End(s) => println("Sum:" + s)
 
       case GetPongSum(s) => println(s)
@@ -45,11 +44,12 @@ object ActorState extends App {
       1
     }
 
+
     def receive: PartialFunction[Any,Unit] = {
       case ThrowException() => println(Try(throw new Exception()))
-      case End(counter) => println("Counter:" + counter)
+      case End(counter) => println("Count:" + counter)
       case GetPongSum(value) => println(value)
-      case message: String => val future: Future[Int] = Future {
+      case _: String => val future: Future[Int] = Future {
         sum += doWork()
         sum
       }
@@ -65,7 +65,7 @@ object ActorState extends App {
     }
   }
 
-  val ping = system.actorOf(Props[pingActor], name = "pingActor")
+  val ping = actorSystem.actorOf(Props[pingActor], name = "pingActor")
 
   ping ! StartConversation
 }
